@@ -1,0 +1,57 @@
+{% load django_bootstrap5 %}
+{% load sass_tags %} 
+{% load static %} 
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% sass_src 'css/style.scss' %}" type="text/css">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'icon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'icon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>WORK-REPORT</title>
+  </head>
+  <body class="login vh-100">
+
+    <div class="container-fluid">
+      
+      <span class="logo mb-1">W</span>
+      <p class="text-center mb-5">作業報告</p>
+
+      <div class="card mx-auto mb-3 px-3 py-2">
+        <div class="card-body">
+          <form action="" method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="form-group has-feedback mb-3 text-start">
+                {{ field.label_tag }}
+                {{ field }}
+              </div>
+            {% endfor %}
+    
+            {% for error in form.non_field_errors %}
+              <div class="alert alert-danger" role="alert">
+                <p>{{ error }}</p>
+              </div>
+            {% endfor %}
+    
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary">ログイン</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <p>©️ OMC Co., Ltd.</p>
+    </div>
+
+  </body>
+</html>
+

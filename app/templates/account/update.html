@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}ユーザ情報変更{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="report-create-form">
+    {% include "components/page_title.html" with text="ユーザ情報変更" %}
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <p><strong>ユーザー名:</strong> {{ account.username }}</p>
+
+      <div class="row mb-3">
+        <div class="col">
+          {{ form.last_name.label_tag }}
+          {{ form.last_name }}
+        </div>
+        <div class="col">
+          {{ form.first_name.label_tag }}
+          {{ form.first_name }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+      </div>
+      
+      <input name="next" type="hidden" value="{{ referer }}">
+
+      <div class="border-top py-3 d-flex justify-content-between">
+        <button class="btn btn-outline-primary" type="submit">変更</button>
+        <a class="btn btn-outline-secondary ms-auto" href="{{ referer }}">戻る</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

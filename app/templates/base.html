@@ -1,0 +1,156 @@
+{% load sass_tags %} 
+{% load static %} 
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'css/bootstrap/bootstrap.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% sass_src 'css/style.scss' %}" type="text/css">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'icon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'icon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <link rel="stylesheet" href="{% static 'bs-icons/font/bootstrap-icons.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-sm px-3 custom-nav mb-2">
+      <div class="container-fluid">
+        <a class="navbar-brand py-0" href="{% url 'report:report-list' %}"><span class="nav-logo me-2">W</span>作業報告</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMenu">
+          <ul class="navbar-nav ms-auto mb-lg-0">
+
+            {# ユーザー >>> #}
+            <li class="nav-item dropdown rounded-pill bg-white px-2 me-2 d-none-under-sm">
+              <a class="nav-link dropdown-toggle flex-align-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i>&ensp;{{ request.user.last_name }} {{ request.user.first_name }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'accounts:account-update' request.user.id %}">ユーザー情報変更</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:pw-change' %}">パスワード変更</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">ログアウト</a></li>
+              </ul>
+            </li>
+            {# <<< ユーザー #}
+
+            {# 管理者メニュー >>> #}
+            <li class="nav-item dropdown nav-admin-menu d-none-under-sm">
+              <a class="nav-link nav-admin-menu-icon" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-list"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item nav-admin-menu-item" href="{% url 'report:report-list' %}">作業報告</a></li>
+                <li><a class="dropdown-item nav-admin-menu-item" href="{% url 'accounts:account-list' %}">ユーザー管理</a></li>
+                <li><a class="dropdown-item nav-admin-menu-item" href="#">タスクアイテム</a></li>
+              </ul>
+            </li>
+            {# <<< 管理者メニュー #}
+
+            <li class="nav-item dropdown d-none-over-sm">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i>&ensp;{{ request.user.last_name }} {{ request.user.first_name }}
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'accounts:account-update' request.user.id %}">ユーザー情報変更</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:pw-change' %}">パスワード変更</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">ログアウト</a></li>
+              </ul>
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                メニュー
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'report:report-list' %}">作業報告</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:account-list' %}">ユーザー管理</a></li>
+                <li><a class="dropdown-item" href="#">タスクアイテム</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid px-3" x-data="base()" x-init="baseInit()">
+      {% block content %}{% endblock %}
+    </div>
+    <script src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    <script>
+      const base = () => {
+        return {
+          dpDate: null,
+          baseInit() {
+
+            // 祝日一覧をAPIから取得する
+            function fetchHolidays() {
+              return axios
+                .get({% url 'master:holidays' %})
+                .then(response => {
+                  return response.data;
+                })
+                .catch(error => {
+                  console.error('祝日の取得中にエラーが発生しました', error);
+                  return {};
+                });
+            }
+            
+            //日付をフォーマット YYYY-MM-DD
+            function formatDate(date) {
+              const year = date.getFullYear();
+              const month = date.getMonth() + 1;
+              const mm = ('00' + month).slice(-2);
+              const day = date.getDate();
+              const dd = ('00' + day).slice(-2);
+              return `${year}-${mm}-${dd}`;
+            }
+
+            //祝日の場合にクラスをつける
+            function addHolidayClass(dayElem, holidays){
+              const date = dayElem.dateObj;
+              const selectDay = formatDate(date);
+              if(selectDay in holidays){
+                dayElem.classList.add('is-holiday');
+              }
+            }
+            
+            // カレンダー設定
+            async function flatpickrInit() {
+              const holidays = await fetchHolidays();
+
+              flatpickr('#js-datepicker', {
+                locale: 'ja',
+                dateFormat: 'Y/m/d（D）',
+                defaultDate: new Date(),
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                  addHolidayClass(dayElem, holidays);
+                },
+                onChange: (dates, datestring, Flatpickr) => {
+                  this.dpDate = dates;
+                },
+                onReady: (dates, datestring, Flatpickr) => {
+                  this.dpDate = dates;
+                }
+              });
+            }
+            
+            flatpickrInit();
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% block title %}work-report{% endblock %}
+{% load custom_tags %}
+
+{% block content %}
+<div class="row justify-content-center" x-data="app()" x-init="init()">
+  <div class="row">
+    {% include "components/message.html" %}
+
+    {# 左側 カレンダー #}
+    <div class="col-6 pe-0">
+
+      {# 対象年月 #}
+      <div class="d-flex justify-content-center report-month mb-2">
+        <a href="{% url 'report:report-list-report-month' report_month.year_month.value|prev_month %}">
+          <i class="bi bi-arrow-left-circle prev-next-month text-secondary me-2"></i>
+        </a>
+        {{ report_month.year_month }}
+        <a href="{% url 'report:report-list-report-month' report_month.year_month.value|next_month %}">
+          <i class="bi bi-arrow-right-circle prev-next-month text-secondary ms-2"></i>
+        </a>
+      </div>
+
+      {# カレンダー #}
+      <div class="table-sticky calendar">
+        <table class="table table-sm table-hover">
+          <thead class="table-light">
+            <tr>
+              <th class="d-none-over-lg">日付</th>  {# 大画面 #}
+              <th class="d-none-under-lg">日付</th>  {# 小画面 #}
+              <th>作業時刻</th>
+              <th class="d-none-under-lg">休憩時間</th>  {# 小画面非表示 #}
+              <th class="d-none-under-lg">作業時間</th>  {# 小画面非表示 #}
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for day in report_month.year_month.value|make_calendar %}
+              {% with reports|get_report:day as report%}
+                <tr class="align-middle {{ day|holiday }}">
+                  <td class="d-none-over-lg">{{ day|date:"n/j(D)" }}</td>  {# 大画面 #}
+                  <td class="d-none-under-lg">{{ day|date:"Y/m/d(D)" }}</td>  {# 小画面 #}
+      
+                  {% if report %}
+                    <td>{{ report.start_time }} - {{ report.end_time|default:"" }}</td>
+                    <td class="d-none-under-lg">{{ report.break_hours|default:"" }}</td>  {# 小画面非表示 #}
+                    <td class="d-none-under-lg">{{ report.work_hours|default:"" }}</td>  {# 小画面非表示 #}
+                    <td class="text-center">
+                      <a class="{{ 'secondary'|class_button }}" @click="getDetail({{ report.id }})">
+                        <i class="bi bi-search"></i>
+                        詳細
+                      </a>
+                    </td>
+                  {% else %}
+                    <td></td>
+                    <td class="d-none-under-lg"></td>  {# 小画面非表示 #}
+                    <td class="d-none-under-lg"></td>  {# 小画面非表示 #}
+                    <td class="text-center">
+                      {% url 'report:report-create' day|date:'Ymd' as create_url %}
+                      {% include "components/action_btn_create.html" with url=create_url text="登録" %}
+                    </td>
+                  {% endif %}
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {# 右側 作業報告詳細 #}
+    <div class="col-6 ps-0">
+        <div class="h-100 p-2">
+
+        {# 作業報告詳細 #}
+        <template x-if="showDetail">
+          <div class="card report-detail">
+            <div class="card-header themeBgColor">
+              作業報告詳細
+            </div>
+            <div class="card-body">
+
+              {# Loading... #}
+              <template x-if="reportLoading">
+                <div class="d-flex justify-content-center">
+                  <div class="spinner-grow text-secondary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </template>
+
+              {# 作業報告詳細 #}
+              <template x-if="!reportLoading && report">
+                <div>
+                  <h5 class="card-title" x-text="fDate(report.work_dt, true)"></h5>
+                  <table class="table table-borderless mb-1">
+                    <tr><th class="w-25 ps-0">作業時刻:</th><td x-text="`${fTime(report.start_time)} - ${fTime(report.end_time)}`"></td></tr>
+                    <tr><th class="w-25 ps-0">休憩時間:</th><td x-text="fHour(report.break_hours)"></td></tr>
+                    <tr><th class="w-25 ps-0">作業時間:</th><td x-text="fHour(report.work_hours)"></td></tr>
+                  </table>
+                  <div class="bg-light border rounded" x-show="report.notes">
+                    <p class="ps-2 pt-1 mb-0 fw-bold">備考</p>
+                    <div class="p-2">
+                      <p class="mb-0" x-text="report.notes"></p>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-center mt-3">
+                    <button 
+                      type="button" 
+                      class="{{ 'success'|class_button }}" 
+                      href="#"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#copy-report-modal"
+                    >
+                      <i class="bi bi-clipboard-plus"></i>
+                      コピー
+                    </button>
+                    <a class="{{ 'primary'|class_button }} mx-1" :href="`/report/update/${report.id}`">
+                      <i class="bi bi-pencil-fill"></i>
+                      変更
+                    </a>
+                    <form :action="`/report/delete/${report.id}`"  method="post">
+                      {% csrf_token %}
+                      <button 
+                        class="{{ 'danger'|class_button }}" 
+                        onclick="return confirm('削除してよろしいですか？')" 
+                        type="submit"
+                      >
+                        <i class="bi bi-trash3-fill"></i>
+                        削除
+                      </button>
+                    </form>
+                  </div>
+
+                  {# 作業内容一覧 #}
+                  {% include "components/page_title.html" with text="作業内容" %}
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>作業項目</th>
+                        <th>詳細</th>
+                        <th>時間</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template x-for="task in report.tasks">
+                        <tr class="align-middle">
+                          <td x-text="task.task_item.name"></td>
+                          <td>
+                            <a x-show="task.detail.length > 6"
+                              href="#" 
+                              x-text="maxLen(task.detail, 6)" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#task-detail-modal" 
+                              @click="detailTaskId = task.id"
+                            ></a>
+                            <span 
+                              x-show="task.detail.length <= 6" 
+                              x-text="task.detail, 6"
+                            ></span>
+                          </td>
+                          <td x-text="fHour(task.task_hours)"></td>
+                          <td class="text-nowrap">
+                            <div class="d-flex justify-content-center">
+                              <a class="{{ 'primary'|class_button }} me-1" :href="`/task/update/${task.id}`">
+                                <i class="bi bi-pencil-fill"></i>
+                              </a>
+                              <form :action="`/task/delete/${task.id}`"  method="post">
+                                {% csrf_token %}
+                                <button 
+                                  class="{{ 'danger'|class_button }}" 
+                                  onclick="return confirm('削除してよろしいですか？')" 
+                                  type="submit"
+                                >
+                                  <i class="bi bi-trash3-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+
+                  <div class="d-flex justify-content-center mt-3">
+                    <a class="{{ 'success'|class_button }}" :href="`/task/create/${report.id}`">
+                      <i class="bi bi-plus"></i>
+                      登録
+                    </a>
+                  </div>
+
+
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="!showDetail">
+          <div class="unselected-report">
+            <h3 class="text-secondary">日付を選択してください</h3>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  {# 作業内容表示モーダル #}
+  <div class="modal fade" id="task-detail-modal" tabindex="-1" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <table class="table table-borderless mb-1">
+            <tr>
+              <th class="w-25 ps-0">作業内容:</th>
+              <td>
+                <span x-text="detailTask?.task_item.name"></span>
+                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+              </td>
+            </tr>
+            <tr><th class="w-25 ps-0">詳細:</th><td x-text="detailTask?.detail"></td></tr>
+            <tr><th class="w-25 ps-0">時間:</th><td x-text="detailTask ? fHour(detailTask.task_hours) : ''"></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# 参照登録モーダル #}
+  <div class="modal fade" id="copy-report-modal" tabindex="-1" aria-labelledby="copyReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-copy-create">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="p-2">
+            <div class="mb-3">
+              <p class="header-a fw-bold">コピー先の日付を選択してください</p>
+              <p class="text-center mb-0" x-text="fDate(report?.work_dt, true)"></p>
+              <div class="text-center"><i class="bi bi-arrow-down"></i></div>
+              <input 
+                type="text" 
+                name="copy-at-work-dt" 
+                class="form-control flatpickr text-center" 
+                :class="existCopyAt ? 'is-invalid' : ''" 
+                id="js-datepicker" 
+                required 
+                x-model="copyAtWorkDt"
+              >
+              <div class="invalid-feedback">この日の作業報告はすでに登録済みです</div>
+            </div>
+            <form action="{% url 'report:report-copy-create' %}" method="post" x-ref="copyCreate">
+              {% csrf_token %}
+              <input type="text" :value="report?.id" name="base-pk" hidden required>
+              <input type="text" name="copy-at-work-dt" x-ref="formCopyAtWorkDt" hidden required>
+              <div class="text-center">
+                <button type="button" class="{{ 'success'|class_button }}" @click="copyReport()">
+                  <i class="bi bi-plus"></i>
+                  登録
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const app = () => {
+    return {
+      showDetail: false,
+      report: null,
+      reportLoading: false,
+      reportMonth: {{ report_month.year_month.value }},
+      detailTaskId: null,
+      existCopyAt: false,
+      copyAtWorkDt: null,
+      init() {
+        this.getDetail({{ report_detail_id }});
+        this.$watch('copyAtWorkDt', (currentData) => {
+          this.existCopyAt = false;
+        })
+      },
+      get detailTask() {
+        return this.report ? this.report.tasks.find(task => task.id == this.detailTaskId) : null
+      },
+      getDetail(id) {
+        if (id == null) return;
+        this.report = null;
+        this.reportLoading = true;
+
+        axios
+          .get(`/api/report/detail/${id}`)
+          .then(response => {
+            this.report = response.data;
+            this.showDetail = true;
+          })
+          .catch(error => {
+            console.error('データの取得中にエラーが発生しました', error);
+          })
+          .finally(() => {
+            this.reportLoading = false;
+          });
+      },
+      convDateText(dateObj) {
+        const year = dateObj.getFullYear();
+        const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+        const day = ("0" + dateObj.getDate()).slice(-2);
+        return `${year}/${month}/${day}`
+      },
+      fDate(str, withWeekday=False) {
+
+        const dateObj = new Date(str);
+        date = this.convDateText(dateObj)
+
+        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+        const weekday = weekdays[dateObj.getDay()];
+
+        return withWeekday ? `${date} (${weekday})` : date;
+      },
+      fTime(str) {
+        if (!str) return '';
+        const [hours, minutes, seconds] = str.split(':');
+        return `${Number(hours)}:${minutes}`
+      },
+      fHour(num) {
+        if (!num) return '';
+        return (Number.isInteger(num) ? num.toFixed(1) : num.toString()) + ` H`;
+      },
+      maxLen(str, len) {
+        return str.length > len ? `${str.substring(0, len)}...` : str
+      },
+      changeReportMonth() {
+        window.location.href = `/report/${this.reportMonth}`
+      },
+      async copyReport() {
+        this.existCopyAt = false;
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        const workDt = dpDate[0].toLocaleDateString('ja-JP', options).replace(/\//g, '');
+
+        this.existCopyAt = await axios
+          .get(`/api/report/list/?work_dt=${workDt}`)
+          .then(response => {
+            const reports = response.data;
+            return reports.length > 0;
+          })
+          .catch(error => {
+            console.error('データの取得中にエラーが発生しました', error);
+          });
+        // 指定したコピー先日付が存在しない場合、コピーを実施
+        if (!this.existCopyAt) {
+          this.$refs.formCopyAtWorkDt.value = this.convDateText(dpDate[0]);
+          this.$refs.copyCreate.submit();
+        }
+      }
+    }
+  }
+</script>
+{% endblock %}

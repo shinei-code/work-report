@@ -1,0 +1,9 @@
+{% load custom_tags %}
+
+<a 
+  class="{{ 'danger'|class_button }}" 
+  href="{{ url|default:'#' }}"
+>
+  <i class="bi bi-trash3-fill"></i>
+  {{ text|default:'削除' }}
+</a>

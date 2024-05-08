@@ -1,0 +1,242 @@
+$wr-red: #F93D5D;
+$wr-blue1: #a9dcff;
+$wr-blue2: #76c9d1;
+$wr-bgcolor: linear-gradient(137deg, $wr-blue1 0%, $wr-blue2 100%);
+$wr-bodercolor: linear-gradient(to right, $wr-blue1, $wr-blue2);
+$saturday: #32a8df33;
+$sunday: #fde3e3cc;
+$sunday-text: #dc3545;
+$saturday-text: #0d6efd;
+
+@font-face {
+  font-family: 'MPLUSRounded';
+  src: url('/static/fonts/MPLUSRounded1c-ExtraBold.ttf') format('truetype');
+}
+
+@mixin themeBgColor {
+  background: $wr-bgcolor;
+}
+
+@mixin logo($size, $fontSize) {
+  display: inline-block;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: white;
+  text-align:center;
+  line-height: $size;
+  color: $wr-red;
+  font-size: $fontSize;
+  font-family: "MPLUSRounded";
+}
+
+.themeBgColor {
+  background: $wr-bgcolor;
+}
+
+.login {
+  @include themeBgColor;
+  text-align: center;
+
+  .logo {
+    @include logo(100px, 3.5rem);
+    margin-top: 70px;
+  }
+
+  .card {
+    max-width: 300px;
+    border-radius: 15px;
+    border-color: transparent;
+  }
+
+}
+
+.custom-nav {
+  @include themeBgColor;
+}
+
+.nav-logo {
+  @include logo(35px, 1.3rem);
+}
+
+.nav-admin-menu {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  line-height: 40px;
+  text-align: center;
+
+  .nav-admin-menu-icon {
+    padding: 0 0 0 0;
+    margin-top: -1px;
+    margin-left: 0.5px;
+  }
+
+  .nav-admin-menu-item {
+    line-height: 24px;
+  }
+
+}
+
+.flex-align-center {
+  display: flex;
+  align-items: center;
+}
+
+.page-title {
+  @include themeBgColor;
+}
+
+.custom-card {
+  @include themeBgColor;
+
+  .card-header {
+    border-bottom: transparent;
+  }
+  .card-body, .card-footer {
+    background: white;
+  }
+}
+
+@media (max-width: 576px) {
+  .d-none-under-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 576px) {
+  .d-none-over-sm {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .d-none-under-md {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .d-none-over-md {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .d-none-under-lg {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .d-none-over-lg {
+    display: none;
+  }
+}
+
+div.table-sticky {
+  overflow-y: scroll;
+
+  // ヘッダーをトップに固定
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  &.calendar {
+    height: calc(100vh - 140px);
+
+    table {
+      tr {
+        &.saturday {
+          background-color: $saturday;
+    
+          td {
+            background-color: transparent;
+          }
+        }
+        &.sunday {
+          background-color: $sunday;
+    
+          td {
+            background-color: transparent;
+          }
+        }
+      }
+    }
+  }
+
+}
+
+.unselected-report {
+  border: 3px solid #dee2e6;
+  border-radius: 0.5rem;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-outline-primary,
+.btn-outline-success,
+.btn-outline-secondary,
+.btn-outline-danger {
+  background: #fff;
+}
+
+.report-month {
+  .select-year-month {
+    width: 120px;
+    text-align: center;
+  }
+
+  .prev-next-month {
+    font-size: 1.8em;
+  }
+}
+
+@mixin header-a {
+  padding: 0.25em 0.5em;
+  border-left: solid 5px #21252980;
+}
+
+.report-detail {
+  .card-title {
+    @include header-a;
+  }
+}
+
+.header-a {
+    @include header-a;
+}
+
+.report-create-form {
+  max-width: 600px;
+  margin: auto;
+}
+
+// datepicker設定
+// 日曜日
+.flatpickr-calendar .flatpickr-innerContainer .flatpickr-weekdays .flatpickr-weekday:nth-child(7n + 1),
+.flatpickr-calendar .flatpickr-innerContainer .flatpickr-days .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):nth-child(7n + 1) {
+  color: $sunday-text;
+}
+// 土曜日
+.flatpickr-calendar .flatpickr-innerContainer .flatpickr-weekdays .flatpickr-weekday:nth-child(7),
+.flatpickr-calendar .flatpickr-innerContainer .flatpickr-days .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):nth-child(7n) {
+  color: $saturday-text;
+}
+// 祝日
+.flatpickr-day.is-holiday{
+  color: $sunday-text;
+}
+// 入力欄の文字列を選択させないようにしておく
+.flatpickr-calendar .numInput{
+  user-select: none;
+}
+
+.modal-copy-create {
+  width: 350px;
+}

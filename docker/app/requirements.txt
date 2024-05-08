@@ -1,0 +1,10 @@
+Django==4.2
+mysqlclient==2.2.1
+django-bootstrap5
+django-debug-toolbar
+pandas
+django-bootstrap-icons
+libsass 
+django-compressor
+django-sass-processor
+django-livereload-server

@@ -1,0 +1,3 @@
+﻿model,task_cd,category,name,description,created_at,updated_at
+master.TaskItem,FK-Unyo,福祉,運用,運用に係る作業,,
+master.TaskItem,FK-SagyoIrai,福祉,電算作業依頼,電算作業依頼に係る作業,,

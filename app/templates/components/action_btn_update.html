@@ -1,0 +1,9 @@
+{% load custom_tags %}
+
+<a 
+  class="{{ 'primary'|class_button }}" 
+  href="{{ url|default:'#' }}"
+>
+  <i class="bi bi-pencil-fill"></i>
+  {{ text|default:'変更' }}
+</a>

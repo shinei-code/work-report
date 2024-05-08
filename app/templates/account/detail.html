@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}work-report{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-12">
+    {% include "components/page_title.html" with text='ユーザー情報' %}
+    <table class="table">
+      <tr>
+        <th>ユーザー</th>
+        <td>{{ account.username }}</td>
+      </tr>
+      <tr>
+        <th>名前</th>
+        <td>{{ account.last_name }} {{ account.first_name }}</td>
+      </tr>
+      <tr>
+        <th>email</th>
+        <td>{{ account.email }}</td>
+      </tr>
+    </table>
+
+    {% if delete_confirm %}
+      <form action="{% url 'accounts:account-delete' account.id %}"  method="post">
+        {% csrf_token %}
+        <div class="py-3 d-flex justify-content-between">
+            <button class="btn btn-outline-danger" onclick="return confirm('削除してよろしいですか？')" type="submit">削除</button>
+            <a class="btn btn-outline-secondary ms-auto" href="{% url 'accounts:account-list' %}">戻る</a>
+        </div>
+      </form>
+    {% endif %}
+
+  </div>
+</div>  
+{% endblock %}

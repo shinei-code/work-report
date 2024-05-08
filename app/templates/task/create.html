@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}work-report{% endblock %}
+
+{% block content %}
+<div class="report-create-form">
+    {% with is_create|yesno:"作業内容登録, 作業内容変更" as title %}
+        {% include "components/page_title.html" with text=title %}
+    {% endwith %}
+    {% include "components/message_invalid.html" %}
+    <form method="POST" class="mb-3">
+        {% csrf_token %}
+        {{ form.report }}
+        <p><strong>作業日: </strong>{{ work_dt|date:"Y/m/d(D)" }}</p>
+
+        <div class="row mb-2">
+            <div class="col-6">
+                {{ form.task_item.label_tag }}
+                {{ form.task_item }}
+                {% if form.task_item.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.task_item.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-6">
+                {{ form.task_hours.label_tag }}
+                <div class="input-group {% if form.task_hours.errors %}is-invalid{% endif %}">
+                    {{ form.task_hours }}
+                    <span class="input-group-text" id="basic-addon2">時間</span>
+                </div>
+                {% if form.task_hours.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.task_hours.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-2">
+            {{ form.detail.label_tag }}
+            {{ form.detail }}
+            {% if form.detail.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.detail.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="border-top py-3 d-flex justify-content-between">
+            <button class="btn btn-outline-primary" type="submit">{{ is_create|yesno:"登録, 変更" }}</button>
+            <a class="btn btn-outline-secondary ms-auto" href="{% url 'report:report-list-report-month' work_dt|date:"Ym" %}">戻る</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

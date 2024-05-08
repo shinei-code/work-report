@@ -1,0 +1,9 @@
+{% load custom_tags %}
+
+<a 
+  class="{{ 'secondary'|class_button }}" 
+  href="{{ url|default:'#' }}"
+>
+  <i class="bi bi-search"></i>
+  {{ text|default:'照会' }}
+</a>

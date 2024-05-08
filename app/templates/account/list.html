@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+
+{% block title %}work-report{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-8 col-12">
+
+    {% include "components/message.html" %}
+
+    {% include "components/page_title.html" with text="ユーザー管理" %}
+
+    <p class="mb-2">
+      {% url 'accounts:account-create' as update_url %}
+      {% include "components/action_btn_create.html" with url=update_url %}
+    </p>
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>ユーザー名</th>
+          <th>名前</th>
+          <th>email</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        {% for account in accounts %}
+          <tr class="align-middle">
+            <td>{{ account.username }}</td>
+            <td>{{ account.last_name }} {{ account.first_name }}</td>
+            <td>{{ account.email }}</td>
+            <td>
+              {% url 'accounts:account-update' account.id as update_url %}
+              {% include "components/action_btn_update.html" with url=update_url %}
+
+              {% url 'accounts:account-delete' account.id as update_url %}
+              {% include "components/action_btn_delete.html" with url=update_url %}
+              
+              <a class="{{ 'success'|class_button }}"  href="{% url 'accounts:pw-reset' account.id %}" onclick="return confirm('パスワードを初期化します。よろしいですか？')"><i class="bi bi-shield-lock-fill"></i>パスワード初期化</a>
+          </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>  
+{% endblock %}
