@@ -1,8 +1,26 @@
 from django import template
 from datetime import date, timedelta
 import calendar
+import json
+from datetime import date, datetime, time
+from decimal import Decimal
+from django.utils.safestring import mark_safe
 
 register = template.Library()
+
+# date, datetime, time, decimalの変換関数
+def json_serial(obj):
+    if isinstance(obj, (datetime, date, time)):
+        return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError ("Type %s not serializable" % type(obj))
+
+@register.simple_tag
+def queryset_to_json(queryset, *fields):
+    ary = list(queryset.values(*fields))
+    json_ary = json.dumps(ary, ensure_ascii=False, default=json_serial)
+    return mark_safe(json_ary)
 
 # その月（引数）のカレンダー生成
 # ex. ['2024/4/1', '2024/4/2', ... '2024/4/30']
@@ -70,3 +88,7 @@ def next_month(year_month):
 @register.filter
 def class_button(theme):
     return f'btn btn-sm btn-outline-{theme} rounded-pill text-nowrap'
+
+@register.filter
+def format_time(time_text):
+    return time_text.strftime('%H:%M') if time_text else ""

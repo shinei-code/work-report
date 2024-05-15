@@ -23,7 +23,7 @@ $saturday-text: #0d6efd;
   height: $size;
   border-radius: 50%;
   background: white;
-  text-align:center;
+  text-align: center;
   line-height: $size;
   color: $wr-red;
   font-size: $fontSize;
@@ -94,7 +94,9 @@ $saturday-text: #0d6efd;
   .card-header {
     border-bottom: transparent;
   }
-  .card-body, .card-footer {
+
+  .card-body,
+  .card-footer {
     background: white;
   }
 }
@@ -152,14 +154,15 @@ div.table-sticky {
       tr {
         &.saturday {
           background-color: $saturday;
-    
+
           td {
             background-color: transparent;
           }
         }
+
         &.sunday {
           background-color: $sunday;
-    
+
           td {
             background-color: transparent;
           }
@@ -168,6 +171,11 @@ div.table-sticky {
     }
   }
 
+}
+
+div.template-overflow {
+  overflow-y: auto;
+  height: calc(100vh - 70px);
 }
 
 .unselected-report {
@@ -209,11 +217,11 @@ div.table-sticky {
 }
 
 .header-a {
-    @include header-a;
+  @include header-a;
 }
 
 .report-create-form {
-  max-width: 600px;
+  max-width: 1000px;
   margin: auto;
 }
 
@@ -223,20 +231,33 @@ div.table-sticky {
 .flatpickr-calendar .flatpickr-innerContainer .flatpickr-days .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):nth-child(7n + 1) {
   color: $sunday-text;
 }
+
 // 土曜日
 .flatpickr-calendar .flatpickr-innerContainer .flatpickr-weekdays .flatpickr-weekday:nth-child(7),
 .flatpickr-calendar .flatpickr-innerContainer .flatpickr-days .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):nth-child(7n) {
   color: $saturday-text;
 }
+
 // 祝日
-.flatpickr-day.is-holiday{
+.flatpickr-day.is-holiday {
   color: $sunday-text;
 }
+
 // 入力欄の文字列を選択させないようにしておく
-.flatpickr-calendar .numInput{
+.flatpickr-calendar .numInput {
   user-select: none;
 }
 
 .modal-copy-create {
   width: 350px;
 }
+
+.w-30 {
+  width: 30%;
+}
+
+.template-card:hover {
+  cursor: pointer;
+}
+
+

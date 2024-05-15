@@ -1,91 +1,137 @@
 {% extends "base.html" %}
+{% load custom_tags %}
 {% block title %}work-report{% endblock %}
 
 {% block content %}
-<div class="report-create-form">
+<div class="row report-create-form px-2" x-data="reportForm">
+  {# フォーム #}
+  <div class="col-8">
     {% with is_create|yesno:"作業報告登録, 作業報告変更" as title %}
         {% include "components/page_title.html" with text=title %}
     {% endwith %}
     {% include "components/message_invalid.html" %}
     <form method="POST" class="mb-3">
-        {% csrf_token %}
-        <div class="row">
-            {% if is_create %}
-            <div class="col-6 mb-2">
-                {{ form.work_dt.label_tag }}
-                {{ form.work_dt }}
+      {% csrf_token %}
+      <div class="row">
+        {% if is_create %}
+        <div class="col-6 mb-2">
+          {{ form.work_dt.label_tag }}
+          {{ form.work_dt }}
+        </div>
+        {% else %}
+        <p><strong>{{ form.work_dt.label }}: </strong>{{ form.work_dt.value|date:"Y/m/d(D)" }}</p>
+        {% endif %}
+      </div>
+
+      <div class="row mb-2">
+          <div class="col-6">
+            {{ form.start_time.label_tag }}
+            {{ form.start_time }}
+            {% if form.start_time.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.start_time.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
             </div>
-            {% else %}
-            <p><strong>{{ form.work_dt.label }}: </strong>{{ form.work_dt.value|date:"Y/m/d(D)" }}</p>
             {% endif %}
-        </div>
-
-        <div class="row mb-2">
-            <div class="col-6">
-                {{ form.start_time.label_tag }}
-                {{ form.start_time }}
-                {% if form.start_time.errors %}
-                <div class="invalid-feedback">
-                    {% for error in form.start_time.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
+          </div>
+          <div class="col-6">
+            {{ form.end_time.label_tag }}
+            {{ form.end_time }}
+            {% if form.end_time.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.end_time.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
             </div>
-            <div class="col-6">
-                {{ form.end_time.label_tag }}
-                {{ form.end_time }}
-                {% if form.end_time.errors %}
-                <div class="invalid-feedback">
-                    {% for error in form.end_time.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
+            {% endif %}
+          </div>
+      </div>
+
+      <div class="row mb-2">
+          <div class="col-6">
+            {{ form.break_hours.label_tag }}
+            <div class="input-group {% if form.break_hours.errors %}is-invalid{% endif %}">
+              {{ form.break_hours }}
+              <span class="input-group-text" id="basic-addon2">時間</span>
             </div>
-        </div>
-
-        <div class="row mb-2">
-            <div class="col-6">
-                {{ form.break_hours.label_tag }}
-                <div class="input-group {% if form.break_hours.errors %}is-invalid{% endif %}">
-                    {{ form.break_hours }}
-                    <span class="input-group-text" id="basic-addon2">時間</span>
-                </div>
-                {% if form.break_hours.errors %}
-                <div class="invalid-feedback">
-                    {% for error in form.break_hours.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
+            {% if form.break_hours.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.break_hours.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
             </div>
-            <div class="col-6">
-                {{ form.work_hours.label_tag }}
-                <div class="input-group {% if form.work_hours.errors %}is-invalid{% endif %}">
-                    {{ form.work_hours }}
-                    <span class="input-group-text" id="basic-addon2">時間</span>
-                </div>
-                {% if form.work_hours.errors %}
-                <div class="invalid-feedback">
-                    {% for error in form.work_hours.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
+            {% endif %}
+          </div>
+          <div class="col-6">
+            {{ form.work_hours.label_tag }}
+            <div class="input-group {% if form.work_hours.errors %}is-invalid{% endif %}">
+              {{ form.work_hours }}
+              <span class="input-group-text" id="basic-addon2">時間</span>
             </div>
-        </div>
+            {% if form.work_hours.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.work_hours.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+      </div>
 
-        <div class="mb-2">
-            {{ form.notes.label_tag }}
-            {{ form.notes }}
-        </div>
+      <div class="mb-2">
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+      </div>
 
-        <div class="border-top py-3 d-flex justify-content-between">
-            <button class="btn btn-outline-primary" type="submit">{{ is_create|yesno:"登録, 変更" }}</button>
-            <a class="btn btn-outline-secondary ms-auto" href="{% url 'report:report-list-report-month' form.work_dt.value|date:"Ym" %}">戻る</a>
-        </div>
-
+      <div class="border-top py-3 d-flex justify-content-between">
+        <button class="btn btn-outline-primary" type="submit">{{ is_create|yesno:"登録, 変更" }}</button>
+        <a class="btn btn-outline-secondary ms-auto" href="{% url 'report:report-list-report-month' form.work_dt.value|date:"Ym" %}">戻る</a>
+      </div>
     </form>
+  </div>
+
+  {# テンプレート #}
+  <div class="col-4 template-overflow">
+    {% include "components/page_title.html" with text='テンプレート' %}
+    {% for template in templates %}
+    <div class="card template-card mb-2" @click="selectTemplate({{ template.id }})">
+      <div class="card-header themeBgColor">{{ template.name }}</div>
+      <div class="card-body">
+        <p class="mb-0">{{ template.desc }}</p>
+        <hr class="my-2">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><th class="w-30 ps-0 text-nowrap">作業時刻:</th><td>{{ template.start_time }} - {{ template.end_time }}</td></tr>
+          <tr><th class="w-30 ps-0 text-nowrap">休憩時間:</th><td>{{ template.break_hours }} H</td></tr>
+          <tr><th class="w-30 ps-0 text-nowrap">作業時間:</th><td>{{ template.work_hours }} H</td></tr>
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    const reportForm = () => {
+      return {
+        form: {
+          startTime: "{{ form.start_time.value|format_time }}",
+          endTime: "{{ form.end_time.value|format_time }}",
+          breakHours: "{{ form.break_hours.value|default:'' }}",
+          workHours: "{{ form.work_hours.value|default:'' }}",
+        },
+        templates: {% queryset_to_json templates %},
+        selectTemplate(id) {
+          const template = this.templates.find(template => template.id == id);
+          this.form.startTime = template.start_time;
+          this.form.endTime = template.end_time;
+          this.form.breakHours = template.break_hours;
+          this.form.workHours = template.work_hours;
+        },
+
+        {% include "components/js/common_js.html" %}
+      }
+    }
+  </script>
 </div>
 {% endblock %}
+

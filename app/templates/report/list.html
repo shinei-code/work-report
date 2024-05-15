@@ -93,7 +93,7 @@
               <template x-if="!reportLoading && report">
                 <div>
                   <h5 class="card-title" x-text="fDate(report.work_dt, true)"></h5>
-                  <table class="table table-borderless mb-1">
+                  <table class="table table-borderless table-sm mb-1">
                     <tr><th class="w-25 ps-0">作業時刻:</th><td x-text="`${fTime(report.start_time)} - ${fTime(report.end_time)}`"></td></tr>
                     <tr><th class="w-25 ps-0">休憩時間:</th><td x-text="fHour(report.break_hours)"></td></tr>
                     <tr><th class="w-25 ps-0">作業時間:</th><td x-text="fHour(report.work_hours)"></td></tr>
@@ -303,34 +303,6 @@
             this.reportLoading = false;
           });
       },
-      convDateText(dateObj) {
-        const year = dateObj.getFullYear();
-        const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
-        const day = ("0" + dateObj.getDate()).slice(-2);
-        return `${year}/${month}/${day}`
-      },
-      fDate(str, withWeekday=False) {
-
-        const dateObj = new Date(str);
-        date = this.convDateText(dateObj)
-
-        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-        const weekday = weekdays[dateObj.getDay()];
-
-        return withWeekday ? `${date} (${weekday})` : date;
-      },
-      fTime(str) {
-        if (!str) return '';
-        const [hours, minutes, seconds] = str.split(':');
-        return `${Number(hours)}:${minutes}`
-      },
-      fHour(num) {
-        if (!num) return '';
-        return (Number.isInteger(num) ? num.toFixed(1) : num.toString()) + ` H`;
-      },
-      maxLen(str, len) {
-        return str.length > len ? `${str.substring(0, len)}...` : str
-      },
       changeReportMonth() {
         window.location.href = `/report/${this.reportMonth}`
       },
@@ -353,7 +325,9 @@
           this.$refs.formCopyAtWorkDt.value = this.convDateText(dpDate[0]);
           this.$refs.copyCreate.submit();
         }
-      }
+      },
+    
+      {% include "components/js/common_js.html" %}
     }
   }
 </script>

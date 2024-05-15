@@ -14,23 +14,47 @@ class ReportCreateForm(forms.ModelForm):
     start_time = forms.TimeField(
         label='開始時刻',
         required=False,
-        widget=forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'step': 1800})  # 30分単位
+        widget=forms.TimeInput(
+            format='%H:%M', 
+            attrs={
+                'type': 'time', 
+                'step': 1800,    # 30分単位
+                'x-model': 'form.startTime'
+            }
+        )
     )
     end_time = forms.TimeField(
         label='終了時刻', 
         required=False,
-        widget=forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'step': 1800})  # 30分単位
+        widget=forms.TimeInput(
+            format='%H:%M', 
+            attrs={
+                'type': 'time', 
+                'step': 1800,  # 30分単位
+                'x-model': 'form.endTime'
+            }
+        )
     )
     break_hours = forms.DecimalField(
         label='休憩時間',
         decimal_places=1, 
-        widget=forms.NumberInput(attrs={'step': 0.5}), 
+        widget=forms.NumberInput(
+            attrs={
+                'step': 0.5,
+                'x-model': 'form.breakHours'
+            }
+        ), 
         required=False
     )
     work_hours = forms.DecimalField(
         label='作業時間',
         decimal_places=1, 
-        widget=forms.NumberInput(attrs={'step': 0.5}), 
+        widget=forms.NumberInput(
+            attrs={
+                'step': 0.5,
+                'x-model': 'form.workHours'
+            }
+        ), 
         required=False
     )
     notes = forms.CharField(
@@ -143,17 +167,32 @@ class TaskCreateForm(forms.ModelForm):
     task_item = forms.ModelChoiceField(
         label='作業項目',
         queryset=TaskItem.objects.all(),
-        empty_label="選択してください"
+        empty_label="選択してください",
+        widget=forms.Select(
+            attrs={
+                'x-model': 'form.taskItem'
+                }
+        )
     )
     task_hours = forms.DecimalField(
         label='時間',
         decimal_places=1, 
-        widget=forms.NumberInput(attrs={'step': 0.5}), 
+        widget=forms.NumberInput(
+            attrs={
+                'step': 0.5,
+                'x-model': 'form.taskHours'
+            }
+        ), 
         required=False
     )
     detail = forms.CharField(
         label='詳細',
-        widget=forms.Textarea(attrs={'rows': 2}), 
+        widget=forms.Textarea(
+            attrs={
+                'rows': 2,
+                'x-model': 'form.detail'
+            }
+        ), 
         required=False
     )
 

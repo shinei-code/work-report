@@ -1,52 +1,53 @@
-{% extends "base.html" %}
-{% block title %}work-report{% endblock %}
+{% extends 'base.html' %}
+{% block title %}
+  work-report
+{% endblock %}
 
 {% block content %}
-<div class="px-3">
-        <h2 class="my-3">{{ delete_confirm|yesno:'削除確認, 照会' }} (#{{report.id}})</h2>
-        <table class="table">
-            <tr>
-                <th class="w-25">日付</th>
-                <td>{{ report.work_dt }}</td>
-            </tr>
-            <tr>
-                <th>作業時刻</th>
-                <td>{{ report.start_time }} - {{ report.end_time }}</td>
-            </tr>
-            <tr>
-                <th>休憩時間</th>
-                <td>{{ report.break_hours }}</td>
-            </tr>
-            <tr>
-                <th>作業時間</th>
-                <td>{{ report.work_hours }}</td>
-            </tr>
-            <tr>
-                <th>備考</th>
-                <td>{{ report.notes }}</td>
-            </tr>
-        </table>
+  <div class="px-3">
+    <h2 class="my-3">{{ delete_confirm|yesno:'削除確認, 照会' }} (#{{ report.id }})</h2>
+    <table class="table">
+      <tr>
+        <th class="w-25">日付</th>
+        <td>{{ report.work_dt }}</td>
+      </tr>
+      <tr>
+        <th>作業時刻</th>
+        <td>{{ report.start_time }} - {{ report.end_time }}</td>
+      </tr>
+      <tr>
+        <th>休憩時間</th>
+        <td>{{ report.break_hours }}</td>
+      </tr>
+      <tr>
+        <th>作業時間</th>
+        <td>{{ report.work_hours }}</td>
+      </tr>
+      <tr>
+        <th>備考</th>
+        <td>{{ report.notes }}</td>
+      </tr>
+    </table>
 
-        <table class="table">
-            <thead></thead>
-            <tbody>
-                {% for task in report.Tasks.all %}
-                <tr>
-                    <td>{{ task.id }}</td>
-                    <td>{{ task.task_item.name }}</td>
-                    <td>{{ task.detail }}</td>
-                    <td>{{ task.hours }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table class="table">
+      <thead></thead>
+      <tbody>
+        {% for task in report.Tasks.all %}
+          <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.task_item.name }}</td>
+            <td>{{ task.detail }}</td>
+            <td>{{ task.hours }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-        {% if delete_confirm %}
-            <form action="{% url 'report:report-delete' report.id %}"  method="post">
-                {% csrf_token %}
-                <button class="btn btn-danger" onclick="return confirm('削除してよろしいですか？')" type="submit">削除</button>
-            </form>
-        {% endif %}
-</div>  
-
+    {% if delete_confirm %}
+      <form action="{% url 'report:report-delete' report.id %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger" onclick="return confirm('削除してよろしいですか？')" type="submit">削除</button>
+      </form>
+    {% endif %}
+  </div>
 {% endblock %}

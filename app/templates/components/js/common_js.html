@@ -1,0 +1,28 @@
+convDateText(dateObj) {
+  const year = dateObj.getFullYear();
+  const month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+  const day = ("0" + dateObj.getDate()).slice(-2);
+  return `${year}/${month}/${day}`
+},
+fDate(str, withWeekday=False) {
+
+  const dateObj = new Date(str);
+  date = this.convDateText(dateObj)
+
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const weekday = weekdays[dateObj.getDay()];
+
+  return withWeekday ? `${date} (${weekday})` : date;
+},
+fTime(str) {
+  if (!str) return '';
+  const [hours, minutes, seconds] = str.split(':');
+  return `${Number(hours)}:${minutes}`
+},
+fHour(num) {
+  if (!num) return '';
+  return (Number.isInteger(num) ? num.toFixed(1) : num.toString()) + ` H`;
+},
+maxLen(str, len) {
+  return str.length > len ? `${str.substring(0, len)}...` : str
+},

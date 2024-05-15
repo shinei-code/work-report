@@ -4,7 +4,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Report, Task
+from .models import Report, Task, ReportTemplate, TaskTemplate
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from .forms import ReportMonth, ReportCreateForm, TaskCreateForm
@@ -117,7 +117,7 @@ class ReportCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context['templates'] = ReportTemplate.objects.filter(user=self.request.user)
         context['is_create'] = True
         return context
 
@@ -205,6 +205,12 @@ class ReportUpdateView(LoginRequiredMixin, UpdateView):
         )
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['templates'] = ReportTemplate.objects.filter(user=self.request.user)
+        context['is_create'] = False
+        return context
+
 class ReportDeleteView(DeleteView):
     model = Report
     success_url = "/report"
@@ -246,6 +252,8 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         report = self.report_queryset.get()
         context['work_dt'] = report.work_dt
+
+        context['templates'] = TaskTemplate.objects.filter()  # 条件 要追加 user=self.request.user
         context['is_create'] = True
         return context
 
@@ -271,9 +279,13 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         task = self.get_object()
         report = get_report(task.report.id, self.request.user).get()
         context['work_dt'] = report.work_dt
+
+        context['templates'] = TaskTemplate.objects.filter()  # 条件 要追加 user=self.request.user
+        context['is_create'] = False
         self.request.session['report_id'] = report.id
         return context
 
